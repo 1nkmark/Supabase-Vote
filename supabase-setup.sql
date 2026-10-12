@@ -1,5 +1,9 @@
 -- 在 Supabase SQL Editor 执行。仅创建本题专用表，不修改原欧拉图 votes 表。
 begin;
+create schema if not exists private;
+revoke all on schema private from public,anon,authenticated;
+grant usage on schema private to anon,authenticated;
+
 create table if not exists public.resolution_rounds (
   id bigint generated always as identity primary key,
   is_open boolean not null default true,
@@ -18,7 +22,8 @@ revoke all on public.resolution_rounds,public.resolution_votes from public,anon,
 insert into public.resolution_rounds(is_open)
 select true where not exists(select 1 from public.resolution_rounds);
 
-create or replace function public.resolution_state(p_device_id uuid default null)
+-- Privileged implementations live outside Supabase's exposed API schemas.
+create or replace function private.resolution_state(p_device_id uuid default null)
 returns jsonb language plpgsql security definer set search_path = '' as $$
 declare r public.resolution_rounds; a bigint; b bigint; mine text;
 begin
@@ -31,7 +36,7 @@ begin
 end;
 $$;
 
-create or replace function public.resolution_submit(p_device_id uuid,p_choice text,p_round_id bigint)
+create or replace function private.resolution_submit(p_device_id uuid,p_choice text,p_round_id bigint)
 returns jsonb language plpgsql security definer set search_path = '' as $$
 declare r public.resolution_rounds; saved text;
 begin
@@ -47,6 +52,20 @@ begin
   select choice into saved from public.resolution_votes where round_id=r.id and device_id=p_device_id;
   return jsonb_build_object('choice',saved);
 end;
+$$;
+revoke all on function private.resolution_state(uuid) from public;
+revoke all on function private.resolution_submit(uuid,text,bigint) from public;
+grant execute on function private.resolution_state(uuid) to anon,authenticated;
+grant execute on function private.resolution_submit(uuid,text,bigint) to anon,authenticated;
+
+-- Public SECURITY INVOKER functions are the only PostgREST-facing entry points.
+create or replace function public.resolution_state(p_device_id uuid default null)
+returns jsonb language sql security invoker set search_path = '' as $$
+  select private.resolution_state(p_device_id);
+$$;
+create or replace function public.resolution_submit(p_device_id uuid,p_choice text,p_round_id bigint)
+returns jsonb language sql security invoker set search_path = '' as $$
+  select private.resolution_submit(p_device_id,p_choice,p_round_id);
 $$;
 revoke all on function public.resolution_state(uuid) from public;
 revoke all on function public.resolution_submit(uuid,text,bigint) from public;
