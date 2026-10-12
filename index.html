@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#edf4fb">
+  <title>归结演绎推理课堂投票</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <p class="badge">课堂实时投票</p>
+      <h1>若一次归结没有推出矛盾，能否说明原推理不成立？</h1>
+      <p class="subtitle">请选择你认为正确的选项</p>
+    </header>
+    <section class="vote-card" aria-label="选择答案">
+      <div class="options">
+        <button class="option" data-choice="A" disabled><span class="letter">A</span><span>能</span></button>
+        <button class="option" data-choice="B" disabled><span class="letter">B</span><span>不能</span></button>
+      </div>
+      <p id="message" role="status" aria-live="polite">正在连接投票服务…</p>
+      <p class="note">同一浏览器每轮可提交一次</p>
+    </section>
+    <section id="results" class="result-card" hidden aria-label="实时投票结果">
+      <div class="results-head"><h2>实时结果</h2><span id="total">— 人已答</span></div>
+      <div class="result-row"><span>A. 能</span><div class="bar-track"><div id="bar-A" class="bar-fill"></div></div><strong id="value-A">—</strong></div>
+      <div class="result-row"><span>B. 不能</span><div class="bar-track"><div id="bar-B" class="bar-fill"></div></div><strong id="value-B">—</strong></div>
+    </section>
+    <footer><p id="connection" role="status">连接中</p><button id="retry" class="text-button" hidden>重新连接</button></footer>
+    <noscript><p class="error">请启用浏览器 JavaScript 后参与投票。</p></noscript>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>即时投票结果 · 归结演绎推理</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="display">
+  <main class="dashboard">
+    <header class="dashboard-head"><div><h1>即时投票结果</h1><p>学生扫码作答，结果自动更新</p></div><span id="round-label">等待连接</span></header>
+    <div class="top-grid">
+      <section class="question-panel"><span>本题</span><h2>若一次归结没有推出矛盾，能否说明原推理不成立？</h2></section>
+      <aside class="qr-card"><h2>扫码参与投票</h2><div id="qrcode"></div><a id="vote-link" href="index.html" target="_blank" rel="noopener">打开学生投票页 ↗</a><button id="download-qr" class="text-button" hidden>下载二维码</button></aside>
+    </div>
+    <section id="results" class="result-card" aria-label="实时投票结果">
+      <div class="results-head"><h2>作答分布</h2><span id="total">— 人已答</span></div>
+      <div class="result-row"><span>A. 能</span><div class="bar-track"><div id="bar-A" class="bar-fill"></div></div><strong id="value-A">—</strong></div>
+      <div class="result-row"><span>B. 不能</span><div class="bar-track"><div id="bar-B" class="bar-fill"></div></div><strong id="value-B">—</strong></div>
+    </section>
+    <footer><p id="connection" role="status">正在连接投票服务…</p><button id="retry" class="text-button" hidden>重新连接</button><button id="fullscreen" class="text-button">全屏展示</button></footer>
+  </main>
+  <script src="vendor/qrcode.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
