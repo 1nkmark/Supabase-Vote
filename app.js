@@ -5,7 +5,7 @@ const display=document.body.classList.contains('display');
 const $=id=>document.getElementById(id);
 const buttons=[...document.querySelectorAll('[data-choice]')];
 const client=createClient(config);
-let device=null,voter=null,state=null,loading=false,connected=false,blocked=false;
+let device=null,voter=null,state=null,loading=false,connected=false,blocked=false,revision=0;
 
 function status(text,error=false){$('connection').textContent=text;$('connection').classList.toggle('error',error);$('retry').hidden=!error;}
 function lock(){for(const button of buttons){button.disabled=blocked||!connected||!state?.is_open||voter?.pending||Boolean(voter?.choice);button.classList.toggle('selected',button.dataset.choice===voter?.choice);}}
@@ -28,19 +28,23 @@ function render(data){
 async function refresh(){
   if(loading||voter?.pending||blocked)return;
   loading=true;
+  const requestRevision=revision;
   try{
     const data=await client.state(device);
+    if(requestRevision!==revision)return;
     render(data);connected=true;
     status(`已连接 · ${new Date().toLocaleTimeString('zh-CN',{hour12:false})} 更新`);
   }catch(error){
+    if(requestRevision!==revision)return;
     connected=false;
     status(`连接失败，${state?'当前显示上次结果。':''}请检查网络或联系教师。`,true);
     if(!display&&!voter?.choice)$('message').textContent='暂时无法投票，请重新连接';
     console.warn('投票服务错误：',error.message);
-  }finally{loading=false;lock();}
+  }finally{loading=false;lock();if(requestRevision!==revision&&!voter?.pending)refresh();}
 }
 async function submit(choice){
   if(!state||!connected||voter.pending||voter.choice||!state.is_open)return;
+  revision++;
   const task=voter.submit(choice,state.round_id);lock();$('message').textContent='正在提交，请稍候…';
   try{
     await task;
