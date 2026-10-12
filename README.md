@@ -9,14 +9,14 @@
 
 ## 首次部署
 
-1. 在原 Supabase 项目的 SQL Editor 中运行 `supabase-setup.sql`。脚本只创建 `resolution_rounds` 和 `resolution_votes` 及两个 RPC，不修改原有欧拉图投票的 `votes` 表。重复运行不会清空票数。
-2. `config.js` 已填入原会话提供的公开项目 URL 和 publishable key。不要填 secret 或 service_role 密钥。
+1. 在你的 Supabase **Supabase-Vote** 项目中运行 `supabase-setup.sql`。脚本只创建本题专用的 `resolution_rounds` 和 `resolution_votes`，不修改旧欧拉图投票项目或其数据。
+2. `config.js` 已连接到 Supabase-Vote 项目，并使用 publishable key。不要填 secret 或 service_role 密钥。
 3. 在 GitHub 账号 **1nkmark** 下创建公开仓库 `Supabase-Vote`，上传本目录文件（排除 `node_modules`、`artifacts`）。
 4. 仓库 Settings → Pages → Deploy from a branch → `main` / `(root)` → Save。
-5. 等待 GitHub Pages 发布成功，再打开学生页和投屏页。规划的地址如下，**只有实际发布成功后才有效**：
+5. GitHub Pages 已发布成功，学生页和投屏页地址如下：
    - 学生：`https://1nkmark.github.io/Supabase-Vote/`
    - 投屏：`https://1nkmark.github.io/Supabase-Vote/results.html`
-6. 确认页面显示“已连接”，使用两个浏览器各提交一票，核对投屏结果；正式上课前执行 `teacher-controls.sql` 的“开始新一轮”代码块。
+6. 数据库已建好第 1 轮，当前开放且 0 票。正式上课前可打开学生页与投屏页检查连接，并按需执行 `teacher-controls.sql` 的“开始新一轮”代码块。
 7. 在投屏页点击“下载二维码”，可得到带留白边的 PNG，用于 PPT。
 
 ## 课堂操作
@@ -45,6 +45,7 @@ npm test
 python -m http.server 8765 --bind 127.0.0.1
 ```
 
-访问 `http://127.0.0.1:8765/`。本地地址生成的二维码只用于本机预览，不能作为手机课堂入口。数据库测试使用 PGlite 执行真实 PostgreSQL SQL，验证隔离权限、重复投票、结束、新轮次和超过 1000 票的统计。上线后仍需做实际 Supabase 和双设备联调。
+访问 `http://127.0.0.1:8765/`。本地地址生成的二维码只用于本机预览，不能作为手机课堂入口。数据库测试使用 PGlite 执行真实 PostgreSQL SQL，验证隔离权限、重复投票、结束、新轮次和超过 1000 票的统计。Supabase 中的匿名状态函数也已通过 anon 角色权限验证；当前运行环境无法完成外网 HTTPS 请求，因此实际手机投票仍需在课堂网络中确认。
 
 二维码库：qrcode-generator 2.0.4，MIT，版权信息保留在 `vendor/qrcode.js`。
+
